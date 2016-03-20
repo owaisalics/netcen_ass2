@@ -276,7 +276,39 @@ def shared_to_usr(conn,usrnme):              #####################sharing from s
                                     }
                                     add_file(os.path.join(os.getcwd(),userr),msg['filename'],msg['data'])
             file.close()            
+        path=os.path.join(os.getcwd(),usrnme)
+        path=os.path.join(path,"Selectfile.dropbin")
         
+        if os.path.isfile(path):
+            sfiles = []         #Selectedfiles
+            with open(path, "r") as file:
+                for line in file:
+                    words = line.split()
+                    sfiles.append(words[0])
+                file.close()
+            path=os.path.join(os.getcwd(),usrnme)
+            path=os.path.join(path,"Sharefile.dropbin")
+        
+            with open(path, "r") as file:
+                for line in file:
+                    line_words = line.split()
+                    shared_file = line_words[0]
+                    #if os.path.isfile(os.path.join(client_dir, shared_file)):
+                    
+                    if os.path.isfile(os.path.join(os.path.join(os.getcwd(), usrnme), shared_file)):
+                        for i in range(1,len(line_words)):
+                            user = line_words[i]
+                            #Delete this file from this user 
+                            path=os.path.join(os.getcwd(), user)
+                            path = os.path.join(path, shared_file)
+                            if os.path.exists(path):
+                                os.remove(path)
+                            
+                           # send_delshared_file(conn,user,shared_file)
+            file.close()
+            
+            
+            
         #else:
         
 #        add_file(shared_dir, msg['filename'], msg['data'])
