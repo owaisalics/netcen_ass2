@@ -118,7 +118,7 @@ def get_changes(client_dir, last_file_list):        #for user on servr to servr'
 
     return (changes, file_list)
 
-def handler(changes,usernme):
+def handler(changes,usernme):               #from usr on servr to shared foldr
     for filename, change in changes.items():
         if change == 'file_add':
             print('new file added ', filename)
@@ -148,7 +148,7 @@ def send_msg(s,msg):
     
 #    s.send(b'%d\n' % len(serialized))
     s.sendall(serialized)
-    
+
 def snd_new_file(s,filename,usrnme):
     client_dir=os.path.join(os.getcwd(), str(usrnme) )
     path = os.path.join(client_dir, filename)
@@ -173,7 +173,7 @@ def snd_delete_file(s,filename):
 def handler_d(s,changes,usrnme):                   #for usr on servr to local dir of client
     for filename, change in changes.items():
         if change == 'file_add':
-            print('new file added ', filename)
+            print('new file added 2', filename)
             snd_new_file(s, filename,usrnme)
         elif change == 'file_delete':
             print('file deleted ', filename)
@@ -181,15 +181,67 @@ def handler_d(s,changes,usrnme):                   #for usr on servr to local di
 
 
 def c_to_local(s, usrnme):                   #from user on servr to client local
-    print("d")
+    print("kd")
     last_file_list={}
     while True:
-        time.sleep(1)
+        time.sleep(5)
         changes, last_file_list = get_changes(usrnme, last_file_list)
         handler_d(s, changes,usrnme)
     
+def shared_to_usr(a,v):              #####################sharing from shared to usr on srver thruhg sharefilee dropbin
+    print ("PPPPPPP")
+    while True:
+        time.sleep(3)
+        path=os.path.join(os.getcwd(),"shared folder")
+        path=os.path.join(path,"Sharefile.dropbin")
+        
+        if os.path.isfile(path):
+            #print("yse")
+            with open(path, "r") as file:
+                #print("ya")
+                for line in file:
+                    line_words=line.split()
+                    shared_file=line_words[0]
+                 #   print (shared_file)
+                    path=os.path.join(os.getcwd(),"shared folder")
+                    path=os.path.join (path, shared_file)
+                    if os.path.isfile(path):
+                  #      print("HMM")
+                        for i in range(1,len(line_words)):
+                            userr=line_words[i]
+                   #         print(userr)
+                            path=os.path.join(os.getcwd(), userr)
+                            if os.path.exists(path):
+                    #            print("yp")
+                                path=os.path.join(os.getcwd(), "shared folder")
+                                path=os.path.join(path, shared_file)
+                                with open(path,'rb') as file2:
+                                    data = base64.b64encode(file2.read()).decode('utf-8')
     
+    #                                data = file.base64.b64encode(file.read()).decode('utf-8')
+                                    msg = {
+                                      #  'type': 'file_add',
+                                        'filename': shared_file,
+                                        'data': data
+                                    }
+                                    add_file(os.path.join(os.getcwd(),userr),msg['filename'],msg['data'])
+            file.close()            
 
+#        add_file(shared_dir, msg['filename'], msg['data'])
+
+            #     data = file.read()#base64.b64encode(file.read()).decode('utf-8')
+            #     msg = {
+            #         'type': 'file_add',
+            # #        'filename': filename,
+            #         'data': data
+            #     }
+            # print (msg['data'])
+
+
+
+
+
+        
 def server(port, server_dir):
     host = socket.gethostbyname(socket.gethostname())
 
@@ -231,8 +283,8 @@ def server(port, server_dir):
         threading.Thread(target=handle_client, args=(conn, get_user_dir(server_dir, addr))).start()
 
         threading.Thread(target=watch_users, args=(conn,usrnme) ).start() #sharing from users on server to shared folder
-        threading.Thread(target=c_to_local, args=(conn,usrnme)).start() #sharing from users on server to local client dir
-        
+   #     threading.Thread(target=c_to_local, args=(conn,usrnme)).start() #sharing from users on server to local client dir
+        threading.Thread(target=shared_to_usr, args=(conn,usrnme) ).start()        #sharing from share to user on srver from sharefile.dropbin
 
     s.close()
         
