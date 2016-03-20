@@ -98,8 +98,9 @@ def get_message(s):
 
 def add_file(client_dir,filename,data):
     path = os.path.join(client_dir, filename)
-    with open(path, 'wb') as file:
-        file.write(base64.b64decode(data.encode('utf-8')))
+    if not os.path.isfile(path):
+        with open(path, 'wb') as file:
+            file.write(base64.b64decode(data.encode('utf-8')))
 
 def delete_file(client_dir, filename):
     print ("m here")
@@ -132,7 +133,7 @@ def client(server_addr, server_port, uname, client_dir):
     print("sent directory")
     #print rep
     threading.Thread(target=watch_dir, args=(s, client_dir, handle_dir_change)).start()#from client local to servr
-################    threading.Thread(target=handle_srvr,args=(s,os.getcwd() ) ).start()    #from client on server to local client dir
+    threading.Thread(target=handle_srvr,args=(s,os.getcwd() ) ).start()    #from client on server to local client dir
   #  watch_dir(s, client_dir, handle_dir_change)
    # s.close()
 
@@ -144,3 +145,143 @@ if __name__ == "__main__":
     args = parser.parse_args()
 #    usrnme=args.username
     client(args.server_addr, args.server_port, args.username, os.getcwd())#from client to local to server
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

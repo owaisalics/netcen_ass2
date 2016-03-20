@@ -19,8 +19,9 @@ def get_user_dir(server_dir, addr):
 
 def add_file(client_dir, filename, data):
     path = os.path.join(client_dir, filename)
-    with open(path, 'wb') as file:
-        file.write(base64.b64decode(data.encode('utf-8')))
+    if not os.path.exists(path):
+        with open(path, 'wb') as file:
+            file.write(base64.b64decode(data.encode('utf-8')))
 
 def delete_file(client_dir, filename):
     path = os.path.join(client_dir, filename)
@@ -64,6 +65,21 @@ def handle_client(conn, client_dir):
 
 
 def get_file_list(client_dir):
+    #os.path.join(os.path.getcwd(), )
+    files = os.listdir(client_dir)
+    files = [file for file in files if os.path.isfile(os.path.join(client_dir, file))]
+    file_list = {}
+    for file in files:
+        path = os.path.join(client_dir, file)
+        mtime = os.path.getmtime(path)
+        ctime = os.path.getctime(path)
+        file_list[file] = max(ctime, mtime)
+
+    return file_list
+
+
+def get_file_list2(client_dir):
+#    os.path.join(os.path.getcwd(),client_dir )
     files = os.listdir(client_dir)
     files = [file for file in files if os.path.isfile(os.path.join(client_dir, file))]
     file_list = {}
@@ -105,11 +121,25 @@ def send_delete_file( filename):        #link from user to shared foldre
 
 
 
-def get_changes(client_dir, last_file_list):        #for user on servr to servr's shard folder
+def get_changes(client_dir, last_file_list):        ###for user on servr to servr's shard folder
     file_list = get_file_list(client_dir)
     changes = {}
     for filename, mtime in file_list.items():
-        if filename not in last_file_list or last_file_list[filename] < mtime:
+        if filename not in last_file_list:# or last_file_list[filename] < mtime:
+            changes[filename] = 'file_add'
+
+    for filename, time in last_file_list.items():
+        if filename not in file_list:
+            changes[filename] = 'file_delete'
+
+    return (changes, file_list)
+
+def get_changes2(usrnme, last_file_list):        ### 2:server usr to client local
+    path=os.path.join(os.getcwd(), usrnme)
+    file_list = get_file_list2(path)#########################33
+    changes = {}
+    for filename, mtime in file_list.items():
+        if filename not in last_file_list:# or last_file_list[filename] < mtime:
             changes[filename] = 'file_add'
 
     for filename, time in last_file_list.items():
@@ -131,8 +161,8 @@ def watch_users(connec,usernme):        #from user on srvr to shared foldr
     last_file_list = {}
     while True:
         time.sleep(1)
-        cl_path=os.path.join(os.getcwd(), str(usernme) )
-        changes, last_file_list = get_changes(cl_path, last_file_list)
+        #cl_path=os.path.join(os.getcwd(), str(usernme) )
+        changes, last_file_list = get_changes(usrnme, last_file_list)
         handler(changes,usernme)
 
 
@@ -185,10 +215,10 @@ def c_to_local(s, usrnme):                   #from user on servr to client local
     last_file_list={}
     while True:
         time.sleep(5)
-        changes, last_file_list = get_changes(usrnme, last_file_list)
+        changes, last_file_list = get_changes2(usrnme, last_file_list)
         handler_d(s, changes,usrnme)
     
-def shared_to_usr(a,v):              #####################sharing from shared to usr on srver thruhg sharefilee dropbin
+def shared_to_usr(a,v):              #####################sharing from shared to usr on srver thru sharefile dropbin
     print ("PPPPPPP")
     while True:
         time.sleep(3)
@@ -283,8 +313,8 @@ def server(port, server_dir):
         threading.Thread(target=handle_client, args=(conn, get_user_dir(server_dir, addr))).start()
 
         threading.Thread(target=watch_users, args=(conn,usrnme) ).start() #sharing from users on server to shared folder
-   #     threading.Thread(target=c_to_local, args=(conn,usrnme)).start() #sharing from users on server to local client dir
-        threading.Thread(target=shared_to_usr, args=(conn,usrnme) ).start()        #sharing from share to user on srver from sharefile.dropbin
+        threading.Thread(target=c_to_local, args=(conn,usrnme)).start() #sharing from users on server to local client dir
+        threading.Thread(target=shared_to_usr, args=(conn,usrnme) ).start()        #sharing to user on srver from sharefile.dropbin
 
     s.close()
         
