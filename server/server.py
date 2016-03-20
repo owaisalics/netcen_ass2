@@ -238,11 +238,11 @@ def c_to_local(s, usrnme):                   #from user on servr to client local
         changes, last_file_list = get_changes2(usrnme, last_file_list)
         handler_d(s, changes,usrnme)
     
-def shared_to_usr(a,v):              #####################sharing from shared to usr on srver thru sharefile dropbin
+def shared_to_usr(conn,usrnme):              #####################sharing from shared to usr on srver thru sharefile dropbin
     print ("PPPPPPP")
     while True:
         time.sleep(3)
-        path=os.path.join(os.getcwd(),"shared folder")
+        path=os.path.join(os.getcwd(),usrnme)
         path=os.path.join(path,"Sharefile.dropbin")
         
         if os.path.isfile(path):
@@ -253,7 +253,7 @@ def shared_to_usr(a,v):              #####################sharing from shared to
                     line_words=line.split()
                     shared_file=line_words[0]
                  #   print (shared_file)
-                    path=os.path.join(os.getcwd(),"shared folder")
+                    path=os.path.join(os.getcwd(),usrnme)
                     path=os.path.join (path, shared_file)
                     if os.path.isfile(path):
                   #      print("HMM")
@@ -263,7 +263,7 @@ def shared_to_usr(a,v):              #####################sharing from shared to
                             path=os.path.join(os.getcwd(), userr)
                             if os.path.exists(path):
                     #            print("yp")
-                                path=os.path.join(os.getcwd(), "shared folder")
+                                path=os.path.join(os.getcwd(), usrnme)
                                 path=os.path.join(path, shared_file)
                                 with open(path,'rb') as file2:
                                     data = base64.b64encode(file2.read()).decode('utf-8')
