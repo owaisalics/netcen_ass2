@@ -64,7 +64,8 @@ def handle_client(conn, client_dir):
     conn.close()
 
 
-def get_file_list(client_dir):
+def get_file_list(client_dir):                  #usr on srvr to shared folder
+    print ("inside snding files list code")
     #os.path.join(os.path.getcwd(), )
     files = os.listdir(client_dir)
     files = [file for file in files if os.path.isfile(os.path.join(client_dir, file))]
@@ -78,7 +79,7 @@ def get_file_list(client_dir):
     return file_list
 
 
-def get_file_list2(client_dir):
+def get_file_list2(client_dir):                 #may be usr on servr to local client dir
 #    os.path.join(os.path.getcwd(),client_dir )
     files = os.listdir(client_dir)
     files = [file for file in files if os.path.isfile(os.path.join(client_dir, file))]
@@ -91,11 +92,23 @@ def get_file_list2(client_dir):
 
     return file_list
 
+def add_file2(shared_dir, filename, data):          #from usr on srvr to shard foldr
+    path = os.path.join(shared_dir, filename)
+    if not os.path.exists(path):
+        with open(path, 'wb') as file:
+            file.write(base64.b64decode(data.encode('utf-8')))
+
+
+
+def delete_file2(shared_dir, filename):             #from usr on srvr to shard foldr
+    path = os.path.join(shared_dir, filename) 
+    if os.path.exists(path):
+        os.remove(path)
 
 def send_new_file(filename,usernme):        #from user on server to shared folder
     client_dir=os.path.join(os.getcwd(), str(usernme) )
     path = os.path.join(client_dir, filename)
-
+    print("inside code to copy in shrd foldr")
     with open(path, "rb") as file:
         data = base64.b64encode(file.read()).decode('utf-8')
         msg = {
@@ -105,24 +118,27 @@ def send_new_file(filename,usernme):        #from user on server to shared folde
         }
 #        send_msg(conn, msg)
         shared_dir=os.path.join(os.getcwd(), str("shared folder"))
-        add_file(shared_dir, msg['filename'], msg['data'])
+        add_file2(shared_dir, msg['filename'], msg['data'])
 
 
-def send_delete_file( filename):        #link from user to shared foldre
+def send_delete_file( filename,usrnme):        #link from user to shared foldre
     msg = {
         'type': 'file_delete',
         'filename': filename
     }
+    print("insdie dleting from shared foldr")
 #    send_msg(conn, msg)
     shared_dir=os.path.join(os.getcwd(), str("shared folder"))
-    delete_file(shared_dir, msg['filename'])
+    delete_file2(shared_dir, msg['filename'])
 
     #add_file(shared_dir, msg['filename'], msg['data'])
 
 
 
-def get_changes(client_dir, last_file_list):        ###for user on servr to servr's shard folder
-    file_list = get_file_list(client_dir)
+def get_changes(usrnme, last_file_list):        ###for user on servr to servr's shard folder
+    print ("gtng chnges")
+    path=os.path.join(os.getcwd(),usrnme)
+    file_list = get_file_list(path)
     changes = {}
     for filename, mtime in file_list.items():
         if filename not in last_file_list:# or last_file_list[filename] < mtime:
@@ -149,15 +165,19 @@ def get_changes2(usrnme, last_file_list):        ### 2:server usr to client loca
     return (changes, file_list)
 
 def handler(changes,usernme):               #from usr on servr to shared foldr
+    print ("in hndlr")
     for filename, change in changes.items():
         if change == 'file_add':
             print('new file added ', filename)
             send_new_file(filename,usernme)
+            print ("printng name ")#############
+            print (filename)######################
         elif change == 'file_delete':
             print('file deleted ', filename)
-            send_delete_file(filename)
+            send_delete_file(filename,usernme)
 
 def watch_users(connec,usernme):        #from user on srvr to shared foldr
+    print("watchin")
     last_file_list = {}
     while True:
         time.sleep(1)
@@ -256,7 +276,9 @@ def shared_to_usr(a,v):              #####################sharing from shared to
                                     }
                                     add_file(os.path.join(os.getcwd(),userr),msg['filename'],msg['data'])
             file.close()            
-
+        
+        #else:
+        
 #        add_file(shared_dir, msg['filename'], msg['data'])
 
             #     data = file.read()#base64.b64encode(file.read()).decode('utf-8')
