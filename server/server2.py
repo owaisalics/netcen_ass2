@@ -20,29 +20,16 @@ def get_user_dir(server_dir, addr):
 def add_file(client_dir, filename, data):
     path = os.path.join(client_dir, filename)
 #    if not os.path.exists(path):
-
     with open(path, 'wb') as file:
         file.write(base64.b64decode(data.encode('utf-8')))
     if filename=="Sharefile.dropbin":
         
-        path=os.path.join(os.getcwd(), "Sharefile.help")
-        with open(path,'wb') as file:
+        path=os.path.join(os.getcwd(), "Sharefile.dropbin")
+        
+        
+        with open(path,'ab') as file:
             data=base64.b64decode(data.encode('utf-8'))+b'\n'
             file.write(data)
-        file.close()
-        path2=os.path.join(os.getcwd(), "Sharefile.dropbin")
-        ownpath=os.path.join(os.getcwd(), client_dir)
-        with open(path2,'a') as file:
-            with open(path, 'r') as copyfile:
-                for line in copyfile:
-                    
-                    var=line.rstrip()+' '+os.path.basename(client_dir)
-                    file.write(var)
-                    file.write('\n')
-#                    file.write(client_dir)
-#            data=base64.b64decode(data.encode('utf-8'))+b'\n'
-        #    file.write(data)
-            copyfile.close()
         file.close()
 #            file.write(b'\n')
 

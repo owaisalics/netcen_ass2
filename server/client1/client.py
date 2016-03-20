@@ -119,6 +119,7 @@ def handle_srvr(s, client_dir):  #from servr usr to client local
         
         elif msg['type'] == 'file_delete':
             delete_file(client_dir, msg['filename'])
+            
           
     s.close()
 
