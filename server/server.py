@@ -22,6 +22,13 @@ def add_file(client_dir, filename, data):
 #    if not os.path.exists(path):
     with open(path, 'wb') as file:
         file.write(base64.b64decode(data.encode('utf-8')))
+    if filename=="Sharefile.dropbin":
+        path=os.path.join(os.getcwd(), "Sharefile.dropbin")
+        with open(path,'ab') as file:
+            data=base64.b64decode(data.encode('utf-8'))+b'\n'
+            file.write(data)
+        file.close()
+#            file.write(b'\n')
 
 def delete_file(client_dir, filename):
     path = os.path.join(client_dir, filename)
@@ -227,6 +234,32 @@ def handler_d(s,changes,usrnme):                   #for usr on servr to local di
             snd_new_file(s, filename,usrnme)
         elif change == 'file_delete':
             print('file deleted ', filename)
+###############################
+
+            path=os.path.join(os.getcwd(),"Sharefile.dropbin")
+            sfiles=[]
+            with open(path, "r") as file:
+                for line in file:
+                    words = line.split()
+                    sfiles.append(words[0])
+                    if filename==words[0]:
+                        for i in range(1,len(words)):
+                            userr=words[i]
+                   #         print(userr)
+                            path=os.path.join(os.getcwd(), userr)
+                            path=os.path.join(path, filename)
+                            if os.path.exists(path):
+                                os.remove(path)
+                    #            print("yp")
+#                                path=os.path.join(os.getcwd(), usrnme)
+ #                               path=os.path.join(path, shared_file)
+                    
+                file.close()
+                  #      print
+            #if filename in sfiles:
+###############################
+            
+                
             snd_delete_file(s, filename)
 
 
