@@ -19,9 +19,9 @@ def get_user_dir(server_dir, addr):
 
 def add_file(client_dir, filename, data):
     path = os.path.join(client_dir, filename)
-    if not os.path.exists(path):
-        with open(path, 'wb') as file:
-            file.write(base64.b64decode(data.encode('utf-8')))
+#    if not os.path.exists(path):
+    with open(path, 'wb') as file:
+        file.write(base64.b64decode(data.encode('utf-8')))
 
 def delete_file(client_dir, filename):
     path = os.path.join(client_dir, filename)
@@ -366,7 +366,7 @@ def server(port, server_dir):
 
         threading.Thread(target=handle_client, args=(conn, get_user_dir(server_dir, addr))).start()
 
-        threading.Thread(target=watch_users, args=(conn,usrnme) ).start() #sharing from users on server to shared folder
+#        threading.Thread(target=watch_users, args=(conn,usrnme) ).start() #sharing from users on server to shared folder
         threading.Thread(target=c_to_local, args=(conn,usrnme)).start() #sharing from users on server to local client dir
         threading.Thread(target=shared_to_usr, args=(conn,usrnme) ).start()        #sharing to user on srver from sharefile.dropbin
 
